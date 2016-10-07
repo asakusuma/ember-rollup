@@ -1,0 +1,30 @@
+{
+  "name": "ember-rollup",
+  "description": "Vanilla module for using rollup to add runtime dependencies to an ember-cli build",
+  "version": "0.0.1",
+  "author": "Asa Kusuma",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/asakusuma/ember-rollup"
+  },
+  "keywords": [
+    "ember",
+    "ember-cli",
+    "rollup"
+  ],
+  "homepage": "https://github.com/asakusuma/ember-rollup",
+  "engines": {
+    "node": ">= 0.5.0"
+  },
+  "scripts": {},
+  "dependencies": {
+    "babel-preset-es2015": "^6.16.0",
+    "broccoli-funnel": "^1.0.7",
+    "broccoli-merge-trees": "^1.1.4",
+    "broccoli-rollup": "^1.0.2",
+    "broccoli-string-replace": "^0.1.1",
+    "require-relative": "^0.8.7",
+    "rollup-plugin-babel": "^2.6.1"
+  }
+}
