@@ -84,6 +84,8 @@ module.exports = function(modules, indexObj) {
   if (indexObj.included) {
     var old = indexObj.included;
     indexObj.included = function() {
+      // Hack to ensure _super is declared
+      var _super = this._super;
       old.apply(this, arguments);
       included.apply(this, arguments);
     }
