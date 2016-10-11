@@ -3,7 +3,7 @@ Use rollup to add runtime dependencies to an ember-cli build.
 
 ### What is this thing?
 
-'ember-rollup' is not an addon, but rather a function that takes just two arguments:
+`ember-rollup` is not an addon, but rather a function that takes just two arguments:
 
 * An array of string module names. These modules must be present in `dependencies` in `package.json`. Modules must define a `jsnext:main` property.
 * The original object to be exported in `index.js`
