@@ -1,7 +1,7 @@
 {
   "name": "ember-rollup",
   "description": "Vanilla module for using rollup to add runtime dependencies to an ember-cli build",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "author": "Asa Kusuma",
   "main": "index.js",
   "repository": {

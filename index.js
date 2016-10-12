@@ -54,7 +54,7 @@ module.exports = function(modules, indexObj) {
           targets: [{
             dest: dep.fileName,
             format: 'amd',
-            moduleId: dep.moduleName
+            moduleId: indexObj.name + '/' + dep.moduleName
           }],
           plugins: [
             babel()
