@@ -68,7 +68,9 @@ module.exports = function(modules, indexObj) {
           }
         });
 
-        return new rollup(merge([
+        var moduleDir = path.dirname(dep.moduleName);
+
+        var target = new rollup(merge([
           depFolder,
           mappedBabelRc
         ]), {
@@ -84,10 +86,19 @@ module.exports = function(modules, indexObj) {
             ]
           }
         });
+
+        if (moduleDir === '.') {
+          return target;
+        } else {
+          return new Funnel(target, {
+            destDir: moduleDir
+          });
+        }
       });
 
-      trees.push(root);
-      return this._super.treeForAddon.call(this, merge(trees.filter(Boolean)));
+      var runtimeNpmTree = merge(trees.filter(Boolean));
+
+      return this._super.treeForAddon.call(this, merge([runtimeNpmTree, root].filter(Boolean)));
     } else {
       return this._super.treeForAddon.call(this, root);
     }
