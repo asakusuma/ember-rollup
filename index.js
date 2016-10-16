@@ -39,7 +39,14 @@ module.exports = function(modules, indexObj) {
   function treeForAddon(root) {
     if (shouldAddRuntimeDependencies.call(this)) {
       var trees = runtimeDependencies.map(function(dep) {
-        var main = require(dep.moduleName + '/package.json')['jsnext:main'];
+        var esNext = true;
+        var pkg = require(dep.moduleName + '/package.json');
+        var main = pkg['jsnext:main']
+        if (!main) {
+          main = pkg.main;
+          esNext = false;
+        }
+
         var babelrcPath = path.dirname(main) + '/.babelrc';
 
         // Hacky way of getting the npm dependency folder
@@ -70,22 +77,37 @@ module.exports = function(modules, indexObj) {
 
         var moduleDir = path.dirname(dep.moduleName);
 
-        var target = new rollup(merge([
-          depFolder,
-          mappedBabelRc
-        ]), {
-          rollup: {
-            entry: main,
-            targets: [{
-              dest: dep.fileName,
-              format: 'es',
-              moduleId: dep.moduleName
-            }],
-            plugins: [
-              babel()
-            ]
-          }
-        });
+        var target;
+
+        if (esNext) {
+          target = new rollup(merge([
+            depFolder,
+            mappedBabelRc
+          ]), {
+            rollup: {
+              entry: main,
+              targets: [{
+                dest: dep.fileName,
+                format: 'es',
+                moduleId: dep.moduleName
+              }],
+              plugins: [
+                babel()
+              ]
+            }
+          });
+        } else {
+          // If not ES6, bail out and directly copy file
+          target = new Funnel(depFolder, {
+            include: [main],
+            getDestinationPath: function(relativePath) {
+              if (relativePath === main) {
+                return dep.fileName;
+              }
+              return relativePath;
+            }
+          });
+        }
 
         if (moduleDir === '.') {
           return target;
