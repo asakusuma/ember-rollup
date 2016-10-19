@@ -41,10 +41,11 @@ module.exports = function(modules, indexObj) {
   });
 
   function treeForAddon(root) {
+    var nmPath = this.nodeModulesPath;
     if (shouldAddRuntimeDependencies.call(this)) {
       var trees = runtimeDependencies.map(function(dep) {
         var esNext = true;
-        var pkg = require(dep.moduleName + '/package.json');
+        var pkg = relative(dep.moduleName + '/package.json', nmPath);
         var main = pkg['jsnext:main']
         if (!main) {
           main = pkg.main;
@@ -54,7 +55,7 @@ module.exports = function(modules, indexObj) {
         var babelrcPath = path.dirname(main) + '/.babelrc';
 
         // Hacky way of getting the npm dependency folder
-        var depFolder = path.dirname(require.resolve(dep.moduleName + '/package.json'));
+        var depFolder = path.dirname(relative.resolve(dep.moduleName + '/package.json', nmPath));
 
         // Add the babelrc file
         var babelRc = new Funnel(__dirname, {
