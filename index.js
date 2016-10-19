@@ -7,8 +7,9 @@ var relative = require('require-relative');
 var path = require('path');
 var wrapFiles = require('broccoli-wrap');
 
-var es5Prefix = 'var module = { exports: {}};';
-var es5Postfix = 'exports["default"] = module.exports';
+var es5Prefix = 'var _outputModule = (function() { var exports = {}; var module = { exports: exports };';
+var es5Postfix = 'return module.exports; })();';
+es5Postfix += 'exports["default"] = _outputModule';
 
 function shouldAddRuntimeDependencies() {
   var current = this;
