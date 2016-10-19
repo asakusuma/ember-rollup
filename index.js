@@ -5,6 +5,10 @@ var Funnel = require('broccoli-funnel');
 var replace = require('broccoli-string-replace');
 var relative = require('require-relative');
 var path = require('path');
+var wrapFiles = require('broccoli-wrap');
+
+var es5Prefix = 'var module = { exports: {}};';
+var es5Postfix = 'exports["default"] = module.exports';
 
 function shouldAddRuntimeDependencies() {
   var current = this;
@@ -97,9 +101,9 @@ module.exports = function(modules, indexObj) {
             }
           });
         } else {
-          // If not ES6, bail out and directly copy file
-          target = new Funnel(depFolder, {
-            include: [main],
+          // If not ES6, bail out
+          var wrapped = wrapFiles(depFolder, { wrapper: [es5Prefix, es5Postfix] });
+          target = new Funnel(wrapped, {
             getDestinationPath: function(relativePath) {
               if (relativePath === main) {
                 return dep.fileName;

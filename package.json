@@ -24,6 +24,7 @@
     "broccoli-merge-trees": "^1.1.4",
     "broccoli-rollup": "^1.0.2",
     "broccoli-string-replace": "^0.1.1",
+    "broccoli-wrap": "^0.0.2",
     "require-relative": "^0.8.7",
     "rollup-plugin-babel": "^2.6.1"
   }
