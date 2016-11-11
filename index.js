@@ -33,114 +33,184 @@ function shouldAddRuntimeDependencies() {
   return !isTopLevelAddon || !this.parent.parent;
 }
 
-module.exports = function(modules, indexObj) {
-  var runtimeDependencies = modules.map(function(moduleName) {
-    return {
-      fileName: moduleName.split('/').pop() + '.js',
-      moduleName: moduleName
-    };
-  });
+function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
+  transpile = !!transpile;
+  var nmPath = this.nodeModulesPath;
+  if (shouldAddRuntimeDependencies.call(this)) {
+    var trees = runtimeDependencies.map(function(dep) {
+      var esNext = true;
+      var pkg = relative(dep.moduleName + '/package.json', nmPath);
+      var main = pkg['jsnext:main']
+      if (!main) {
+        main = pkg.main;
+        esNext = false;
+      }
 
-  function treeForAddon(root) {
-    var nmPath = this.nodeModulesPath;
-    if (shouldAddRuntimeDependencies.call(this)) {
-      var trees = runtimeDependencies.map(function(dep) {
-        var esNext = true;
-        var pkg = relative(dep.moduleName + '/package.json', nmPath);
-        var main = pkg['jsnext:main']
-        if (!main) {
-          main = pkg.main;
-          esNext = false;
+      var babelrcPath = path.dirname(main) + '/.babelrc';
+
+      // Hacky way of getting the npm dependency folder
+      var depFolder = path.dirname(relative.resolve(dep.moduleName + '/package.json', nmPath));
+
+      // Add the babelrc file
+      var babelRc = new Funnel(__dirname, {
+        include: ['rollup.babelrc'],
+        getDestinationPath: function(relativePath) {
+          if (relativePath === 'rollup.babelrc') {
+            return babelrcPath;
+          }
+          return relativePath;
         }
+      });
 
-        var babelrcPath = path.dirname(main) + '/.babelrc';
+      var preset = path.dirname(relative.resolve('babel-preset-es2015/package.json', __dirname));
 
-        // Hacky way of getting the npm dependency folder
-        var depFolder = path.dirname(relative.resolve(dep.moduleName + '/package.json', nmPath));
+      // Add an absolute path to the es2015 preset. Needed since host app
+      // won't have the preset
+      var mappedBabelRc = replace(babelRc, {
+        files: [ babelrcPath ],
+        pattern: {
+          match: /es2015/g,
+          replacement: preset
+        }
+      });
 
-        // Add the babelrc file
-        var babelRc = new Funnel(__dirname, {
-          include: ['rollup.babelrc'],
+      var moduleDir = path.dirname(dep.moduleName);
+
+      var target;
+
+      if (esNext) {
+        target = new rollup(merge([
+          depFolder,
+          mappedBabelRc
+        ]), {
+          rollup: {
+            entry: main,
+            targets: [{
+              dest: dep.fileName,
+              format: transpile ? 'amd' : 'es',
+              moduleId: dep.moduleName
+            }],
+            plugins: [
+              babel()
+            ]
+          }
+        });
+      } else {
+        // If not ES6, bail out
+        var wrapped = wrapFiles(depFolder, { wrapper: [es5Prefix, es5Postfix] });
+        target = new Funnel(wrapped, {
           getDestinationPath: function(relativePath) {
-            if (relativePath === 'rollup.babelrc') {
-              return babelrcPath;
+            if (relativePath === main) {
+              return dep.fileName;
             }
             return relativePath;
           }
         });
+      }
 
-        var preset = path.dirname(relative.resolve('babel-preset-es2015/package.json', __dirname));
-
-        // Add an absolute path to the es2015 preset. Needed since host app
-        // won't have the preset
-        var mappedBabelRc = replace(babelRc, {
-          files: [ babelrcPath ],
-          pattern: {
-            match: /es2015/g,
-            replacement: preset
-          }
+      if (moduleDir === '.') {
+        return target;
+      } else {
+        return new Funnel(target, {
+          destDir: moduleDir
         });
+      }
+    });
 
-        var moduleDir = path.dirname(dep.moduleName);
+    var runtimeNpmTree = merge(trees.filter(Boolean));
 
-        var target;
+    return superFunc.call(this, merge([runtimeNpmTree, root].filter(Boolean)));
+  } else {
+    return superFunc.call(this, root);
+  }
+}
 
-        if (esNext) {
-          target = new rollup(merge([
-            depFolder,
-            mappedBabelRc
-          ]), {
-            rollup: {
-              entry: main,
-              targets: [{
-                dest: dep.fileName,
-                format: 'es',
-                moduleId: dep.moduleName
-              }],
-              plugins: [
-                babel()
-              ]
-            }
-          });
-        } else {
-          // If not ES6, bail out
-          var wrapped = wrapFiles(depFolder, { wrapper: [es5Prefix, es5Postfix] });
-          target = new Funnel(wrapped, {
-            getDestinationPath: function(relativePath) {
-              if (relativePath === main) {
-                return dep.fileName;
-              }
-              return relativePath;
-            }
-          });
-        }
-
-        if (moduleDir === '.') {
-          return target;
-        } else {
-          return new Funnel(target, {
-            destDir: moduleDir
-          });
-        }
-      });
-
-      var runtimeNpmTree = merge(trees.filter(Boolean));
-
-      return this._super.treeForAddon.call(this, merge([runtimeNpmTree, root].filter(Boolean)));
+module.exports = function(modules, indexObj) {
+  var namespacedDependencies = [];
+  var nonNamespacedDependencies = [];
+  for (var i = 0; i < modules.length; i++) {
+    var moduleName = modules[i];
+    var namespaced = true;
+    var name;
+    if (typeof moduleName === 'string') {
+      name = moduleName;
     } else {
-      return this._super.treeForAddon.call(this, root);
+      name = moduleName.name;
+      namespaced = moduleName.namespaced;
+    }
+
+    var result = {
+      fileName: name.split('/').pop() + '.js',
+      moduleName: name,
+    };
+
+    if (namespaced) {
+      namespacedDependencies.push(result);
+    } else {
+      nonNamespacedDependencies.push(result);
     }
   }
 
-  if (indexObj.treeForAddon) {
-    indexObj.treeForAddon = function() {
-      return merge([
-        indexObj.treeForAddon.apply(this, arguments),
-        treeForAddon.apply(this, arguments)
-      ]);
+  if (namespacedDependencies.length > 0) {
+    function treeForAddon(root) {
+      return rollupAllTheThings.call(this, root, namespacedDependencies, this._super.treeForAddon);
     }
-  } else {
-    indexObj.treeForAddon = treeForAddon;
+    if (indexObj.treeForAddon) {
+      indexObj.treeForAddon = function() {
+        return merge([
+          indexObj.treeForAddon.apply(this, arguments),
+          treeForAddon.apply(this, arguments)
+        ]);
+      }
+    } else {
+      indexObj.treeForAddon = treeForAddon;
+    }
+  }
+
+  if (nonNamespacedDependencies.length > 0) {
+    function treeForVendor(root) {
+      return rollupAllTheThings.call(this, root, nonNamespacedDependencies, this._super.treeForVendor, true);
+    }
+
+    if (indexObj.treeForVendor) {
+      indexObj.treeForVendor = function() {
+        return merge([
+          indexObj.treeForVendor.apply(this, arguments),
+          treeForVendor.apply(this, arguments)
+        ]);
+      }
+    } else {
+      indexObj.treeForVendor = treeForVendor;
+    }
+
+    function included() {
+      this._super.included.apply(this, arguments);
+
+      var current = this;
+      var app;
+
+      // Keep iterating upward until we don't have a grandparent.
+      // Has to do this grandparent check because at some point we hit the project.
+      do {
+        app = current.app || app;
+      } while (current.parent.parent && (current = current.parent));
+
+      for (var i = 0; i < nonNamespacedDependencies.length; i++) {
+        app.import('vendor/' + nonNamespacedDependencies[i].fileName);
+      }
+    }
+
+    if (indexObj.included) {
+      var old = indexObj.included;
+      indexObj.included = function() {
+        // Hack to ensure _super is declared
+        var _super = this._super;
+        old.apply(this, arguments);
+        included.apply(this, arguments);
+      }
+    } else {
+      indexObj.included = included;
+    }
   }
 
   return indexObj;

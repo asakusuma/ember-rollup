@@ -30,3 +30,27 @@ module.exports = emberRollup(runtimeDependencies, {
 import myModule from 'my-addon/my-module';
 import RSVP from 'my-addon/rsvp';
 ```
+
+### Turning off addon namespacing
+
+By default, module names are namespaced based on the addon. The reason being, an app might use two different addons that require two different versions of the same module. If you would rather force the app to only include one version of any given module, you can turn off namespacing.
+
+```JavaScript
+//my-addon/index.js
+var emberRollup = require('ember-rollup');
+var runtimeDependencies = [{
+  name: 'my-module',
+  namespaced: false
+}, 'rsvp'];
+
+module.exports = emberRollup(runtimeDependencies, {
+  name: 'my-addon',
+  ...
+}
+```
+
+```JavaScript
+//my-addon/app/my-thing.js
+import myModule from 'my-module';
+import RSVP from 'my-addon/rsvp';
+```
