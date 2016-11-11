@@ -1,11 +1,11 @@
 var rollup = require('broccoli-rollup');
 var merge = require('broccoli-merge-trees');
 var babel = require('rollup-plugin-babel');
-var Funnel = require('broccoli-funnel');
+var wrapFiles = require('broccoli-wrap');
+var path = require('path');
 var replace = require('broccoli-string-replace');
 var relative = require('require-relative');
-var path = require('path');
-var wrapFiles = require('broccoli-wrap');
+var Funnel = require('broccoli-funnel');
 
 var es5Prefix = 'var _outputModule = (function() { var exports = {}; var module = { exports: exports };';
 var es5Postfix = 'return module.exports; })();';
@@ -33,7 +33,7 @@ function shouldAddRuntimeDependencies() {
   return !isTopLevelAddon || !this.parent.parent;
 }
 
-function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
+module.exports = function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
   transpile = !!transpile;
   var nmPath = this.nodeModulesPath;
   if (shouldAddRuntimeDependencies.call(this)) {
@@ -52,7 +52,7 @@ function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
       var depFolder = path.dirname(relative.resolve(dep.moduleName + '/package.json', nmPath));
 
       // Add the babelrc file
-      var babelRc = new Funnel(__dirname, {
+      var babelRc = new Funnel(__dirname + '/../', {
         include: ['rollup.babelrc'],
         getDestinationPath: function(relativePath) {
           if (relativePath === 'rollup.babelrc') {
@@ -62,7 +62,7 @@ function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
         }
       });
 
-      var preset = path.dirname(relative.resolve('babel-preset-es2015/package.json', __dirname));
+      var preset = path.dirname(relative.resolve('babel-preset-es2015/package.json', __dirname + '/../'));
 
       // Add an absolute path to the es2015 preset. Needed since host app
       // won't have the preset
@@ -123,95 +123,4 @@ function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
   } else {
     return superFunc.call(this, root);
   }
-}
-
-module.exports = function(modules, indexObj) {
-  var namespacedDependencies = [];
-  var nonNamespacedDependencies = [];
-  for (var i = 0; i < modules.length; i++) {
-    var moduleName = modules[i];
-    var namespaced = true;
-    var name;
-    if (typeof moduleName === 'string') {
-      name = moduleName;
-    } else {
-      name = moduleName.name;
-      namespaced = moduleName.namespaced;
-    }
-
-    var result = {
-      fileName: name.split('/').pop() + '.js',
-      moduleName: name,
-    };
-
-    if (namespaced) {
-      namespacedDependencies.push(result);
-    } else {
-      nonNamespacedDependencies.push(result);
-    }
-  }
-
-  if (namespacedDependencies.length > 0) {
-    function treeForAddon(root) {
-      return rollupAllTheThings.call(this, root, namespacedDependencies, this._super.treeForAddon);
-    }
-    if (indexObj.treeForAddon) {
-      indexObj.treeForAddon = function() {
-        return merge([
-          indexObj.treeForAddon.apply(this, arguments),
-          treeForAddon.apply(this, arguments)
-        ]);
-      }
-    } else {
-      indexObj.treeForAddon = treeForAddon;
-    }
-  }
-
-  if (nonNamespacedDependencies.length > 0) {
-    function treeForVendor(root) {
-      return rollupAllTheThings.call(this, root, nonNamespacedDependencies, this._super.treeForVendor, true);
-    }
-
-    if (indexObj.treeForVendor) {
-      indexObj.treeForVendor = function() {
-        return merge([
-          indexObj.treeForVendor.apply(this, arguments),
-          treeForVendor.apply(this, arguments)
-        ]);
-      }
-    } else {
-      indexObj.treeForVendor = treeForVendor;
-    }
-
-    function included() {
-      this._super.included.apply(this, arguments);
-
-      var current = this;
-      var app;
-
-      // Keep iterating upward until we don't have a grandparent.
-      // Has to do this grandparent check because at some point we hit the project.
-      do {
-        app = current.app || app;
-      } while (current.parent.parent && (current = current.parent));
-
-      for (var i = 0; i < nonNamespacedDependencies.length; i++) {
-        app.import('vendor/' + nonNamespacedDependencies[i].fileName);
-      }
-    }
-
-    if (indexObj.included) {
-      var old = indexObj.included;
-      indexObj.included = function() {
-        // Hack to ensure _super is declared
-        var _super = this._super;
-        old.apply(this, arguments);
-        included.apply(this, arguments);
-      }
-    } else {
-      indexObj.included = included;
-    }
-  }
-
-  return indexObj;
 }
