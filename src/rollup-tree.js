@@ -50,7 +50,7 @@ module.exports = function rollupAllTheThings(root, runtimeDependencies, superFun
       var babelrcPath = path.dirname(main) + '/.babelrc';
 
       // Hacky way of getting the npm dependency folder
-      var depFolder = path.dirname(relative.resolve(dep.moduleName + '/package.json', nmPath));
+      var depFolder = new UnwatchedDir(path.dirname(relative.resolve(dep.moduleName + '/package.json', nmPath)));
 
       // Add the babelrc file
       var babelRc = new Funnel(new UnwatchedDir(__dirname + '/../'), {
