@@ -6,6 +6,7 @@ var path = require('path');
 var replace = require('broccoli-string-replace');
 var relative = require('require-relative');
 var Funnel = require('broccoli-funnel');
+var UnwatchedDir = require('broccoli-source').UnwatchedDir;
 
 var es5Prefix = 'var _outputModule = (function() { var exports = {}; var module = { exports: exports };';
 var es5Postfix = 'return module.exports; })();';
@@ -52,7 +53,7 @@ module.exports = function rollupAllTheThings(root, runtimeDependencies, superFun
       var depFolder = path.dirname(relative.resolve(dep.moduleName + '/package.json', nmPath));
 
       // Add the babelrc file
-      var babelRc = new Funnel(__dirname + '/../', {
+      var babelRc = new Funnel(new UnwatchedDir(__dirname + '/../'), {
         include: ['rollup.babelrc'],
         getDestinationPath: function(relativePath) {
           if (relativePath === 'rollup.babelrc') {
