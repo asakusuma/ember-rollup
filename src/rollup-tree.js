@@ -1,7 +1,7 @@
 var rollup = require('broccoli-rollup');
 var merge = require('broccoli-merge-trees');
 var babel = require('rollup-plugin-babel');
-var wrapFiles = require('broccoli-wrap');
+var stew = require('broccoli-stew');
 var path = require('path');
 var replace = require('broccoli-string-replace');
 var relative = require('require-relative');
@@ -101,7 +101,9 @@ module.exports = function rollupAllTheThings(root, runtimeDependencies, superFun
         });
       } else {
         // If not ES6, bail out
-        var wrapped = wrapFiles(depFolder, { wrapper: [es5Prefix, es5Postfix] });
+        var wrapped = stew.map(depFolder, '*.js', function(content) {
+          return [es5Prefix, content, es5Postfix].join('');
+        });
         target = new Funnel(wrapped, {
           getDestinationPath: function(relativePath) {
             if (relativePath === main) {
