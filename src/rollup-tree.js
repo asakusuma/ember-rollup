@@ -63,7 +63,7 @@ module.exports = function rollupAllTheThings(root, runtimeDependencies, superFun
         }
       });
 
-      var preset = path.dirname(relative.resolve('babel-preset-es2015/package.json', __dirname + '/../'));
+      var preset = path.dirname(relative.resolve('babel-preset-es2015-rollup/package.json', __dirname + '/../'));
       // Windows path adjustment
       if (process.platform === 'win32') {
         preset = preset.replace(/\\/g, "\\\\");
@@ -73,7 +73,7 @@ module.exports = function rollupAllTheThings(root, runtimeDependencies, superFun
       var mappedBabelRc = replace(babelRc, {
         files: [ babelrcPath ],
         pattern: {
-          match: /es2015/g,
+          match: /es2015-rollup/g,
           replacement: preset
         }
       });
