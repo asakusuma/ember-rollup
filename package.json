@@ -22,7 +22,7 @@
     "babel-preset-es2015": "^6.16.0",
     "broccoli-funnel": "^1.0.7",
     "broccoli-merge-trees": "^1.1.4",
-    "broccoli-rollup": "^1.0.2",
+    "broccoli-rollup": "1.0.3",
     "broccoli-source": "^1.1.0",
     "broccoli-stew": "^1.4.0",
     "broccoli-string-replace": "^0.1.1",
