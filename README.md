@@ -13,12 +13,12 @@ npm i --save ember-rollup
 
 `ember-rollup` is not an addon, but rather a function that takes just two arguments:
 
-* An array of string module names. These modules must be present in `dependencies` in `package.json`. Modules must define a `jsnext:main` or `main` property.
+* An array of string module names. These modules must be present in `dependencies` in `package.json`.
 * The original object to be exported in `index.js`
 
 Simply wrap the exports of your app/addon `index.js` with the function, and suddenly, ES6/2015 dependencies in your ember app! `ember-rollup` even handles [babel](http://babeljs.io/) for you. Modules are namespaced based on the addon name.
 
-If no `jsnext:main` is provided, `ember-rollup` will fallback to `main` and assume a normal CommonJS module.
+`ember-rollup` looks for a `jsnext:main` in `package.json` of imported modules. If not provided, it will fallback to `main` and assume a normal CommonJS module. If `main` is not provided, it will assume `index.js`.
 
 
 ## Example

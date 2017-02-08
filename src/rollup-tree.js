@@ -41,9 +41,9 @@ module.exports = function rollupAllTheThings(root, runtimeDependencies, superFun
     var trees = runtimeDependencies.map(function(dep) {
       var esNext = true;
       var pkg = relative(dep.moduleName + '/package.json', nmPath);
-      var main = pkg['jsnext:main']
+      var main = pkg['jsnext:main'];
       if (!main) {
-        main = pkg.main;
+        main = pkg.main || 'index.js';
         esNext = false;
       }
 
