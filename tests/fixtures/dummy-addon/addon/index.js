@@ -1,0 +1,1 @@
+// RAW node_modules/dummy-addon/addon/index.js
