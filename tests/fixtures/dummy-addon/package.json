@@ -1,0 +1,12 @@
+{
+    "name": "dummy-addon",
+    "version": "0.0.0",
+    "private": true,
+    "keywords": [
+      "ember-addon"
+    ],
+    "dependencies": {
+        "ember-inner-addon": "latest"
+    
+    }
+  }
