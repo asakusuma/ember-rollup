@@ -1,7 +1,7 @@
 {
   "name": "ember-rollup",
   "description": "Use rollup to add runtime dependencies to an ember-cli addon.",
-  "version": "0.3.8",
+  "version": "1.0.0",
   "author": "Asa Kusuma",
   "main": "src/index.js",
   "repository": {
@@ -30,9 +30,9 @@
     "broccoli-source": "^1.1.0",
     "broccoli-stew": "^1.4.0",
     "broccoli-string-replace": "^0.1.1",
-    "broccoli-test-helper":"^1.2.0",
+    "broccoli-test-helper": "^1.2.0",
     "chai": "^3.3.0",
-    "co":"^4.6.0",
+    "co": "^4.6.0",
     "ember-spaniel": "^0.3.3",
     "mocha": "^2.3.3",
     "require-relative": "^0.8.7",
