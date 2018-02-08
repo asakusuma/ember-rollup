@@ -1,4 +1,4 @@
-# ember-rollup [![npm version](https://badge.fury.io/js/ember-rollup.svg)](https://www.npmjs.com/package/ember-rollup) [![Build Status](https://travis-ci.org/asakusuma/ember-rollup.svg?branch=master)](https://travis-ci.org/stefanpenner/ember-rollup)
+# ember-rollup [![npm version](https://badge.fury.io/js/ember-rollup.svg)](https://www.npmjs.com/package/ember-rollup) [![Build Status](https://travis-ci.org/asakusuma/ember-rollup.svg?branch=master)](https://travis-ci.org/asakusuma/ember-rollup)
 Use rollup to add runtime dependencies to an ember-cli addon.
 
 
