@@ -72,7 +72,8 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
   transpile = !!transpile;
   let trees = runtimeDependencies.map(function(dep) {
     let esNext = true;
-    let pkg = relative(resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot }) );
+    let packagePath = resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot });
+    let pkg = relative(packagePath);
     let main = pkg['jsnext:main'];
     if (!main) {
       main = pkg.main || 'index.js';
@@ -81,7 +82,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
 
     let babelrcPath = path.dirname(main) + '/.babelrc';
     // Hacky way of getting the npm dependency folder
-    let depFolder = new UnwatchedDir(path.dirname(resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot })));
+    let depFolder = new UnwatchedDir(path.dirname(packagePath));
     let depFolderClean = new Funnel(depFolder, {
       exclude: ['node_modules', '.git']
     });

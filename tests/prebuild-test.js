@@ -25,6 +25,7 @@ describe('prebuild', function() {
         return result.then(() => {
             expect(fs.readdirSync(preBuildPath)).to.deep.equal(['addon','vendor']);
         });
+        this.timeout(7000);
     });
 
     it('throws an error when the dependency is not in node modules', function() {
