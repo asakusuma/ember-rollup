@@ -7,6 +7,7 @@ const replace = require('broccoli-string-replace');
 const relative = require('require-relative');
 const Funnel = require('broccoli-funnel');
 const UnwatchedDir = require('broccoli-source').UnwatchedDir;
+const resolve = require('resolve');
 
 let es5Prefix = 'let _outputModule = (function() { let exports = {}; let module = { exports: exports };';
 let es5Postfix = 'return module.exports; })();';
@@ -66,11 +67,11 @@ function shouldAddRuntimeDependencies() {
   return !isTopLevelAddon || !this.parent.parent;
 }
 
-function rollup(runtimeDependencies, nmPath, transpile) {
+function rollup(runtimeDependencies, transpile, addonRoot) {
   transpile = !!transpile;
   let trees = runtimeDependencies.map(function(dep) {
     let esNext = true;
-    let pkg = relative(dep.moduleName + '/package.json', nmPath);
+    let pkg = relative(resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot }) );
     let main = pkg['jsnext:main'];
     if (!main) {
       main = pkg.main || 'index.js';
@@ -79,7 +80,7 @@ function rollup(runtimeDependencies, nmPath, transpile) {
 
     let babelrcPath = path.dirname(main) + '/.babelrc';
     // Hacky way of getting the npm dependency folder
-    let depFolder = new UnwatchedDir(path.dirname(relative.resolve(dep.moduleName + '/package.json', nmPath)));
+    let depFolder = new UnwatchedDir(path.dirname(resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot })));
     let depFolderClean = new Funnel(depFolder, {
       exclude: ['node_modules', '.git']
     });
@@ -159,9 +160,8 @@ function rollup(runtimeDependencies, nmPath, transpile) {
 }
 
 function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
-  let nmPath = this.nodeModulesPath;
   if (shouldAddRuntimeDependencies.call(this)) {
-    let runtimeNpmTree = rollup(runtimeDependencies, nmPath, transpile);
+    let runtimeNpmTree = rollup(runtimeDependencies, transpile, this.root);
     return superFunc.call(this, merge([runtimeNpmTree, root].filter(Boolean)));
   } else {
     return superFunc.call(this, root);
@@ -170,3 +170,4 @@ function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
 
 
 module.exports = { rollup, classifyDependencies, rollupAllTheThings}
+
