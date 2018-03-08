@@ -1,3 +1,4 @@
+'use strict';
 const broccoliRollUp = require('broccoli-rollup');
 const merge = require('broccoli-merge-trees');
 const babel = require('rollup-plugin-babel');
