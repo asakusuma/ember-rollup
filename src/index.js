@@ -1,3 +1,4 @@
+'use strict';
 const merge = require('broccoli-merge-trees');
 const rollupIntoTree = require('./rollup-tree').rollupAllTheThings;
 const path = require('path');

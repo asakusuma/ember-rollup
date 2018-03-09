@@ -1,3 +1,4 @@
+'use strict';
 const fs = require('fs-extra');
 const path = require('path');
 const builder = require('broccoli-builder');
@@ -30,9 +31,9 @@ function preBuild(addonPath) {
         writeLevel: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR',
         ci: true | false
     });
+    const project = Project.closestSync(addonPath, ui);
     // Extend the current addon from base Addon
-    const CurrentAddon = Addon.extend(Object.assign({}, addonToBuild, {root: addonPath}));
-    const project = new Project(addonPath, null, ui);
+    const CurrentAddon = Addon.extend(Object.assign({}, addonToBuild, {root: addonPath, pkg: project.pkg}));
     const currAddon  = new CurrentAddon(addonPath, project);
 
     // Get the tree for Addon and Vendor
@@ -58,3 +59,4 @@ function build(tree, prebuiltPath) {
 }
 
 module.exports = {preBuild, build };
+

@@ -42,24 +42,25 @@ describe('rollup-tree', function() {
 
     describe('rollup', function() {
         let output;
-        const addonPath = path.join(path.dirname(`${__dirname}`), 'node_modules');
+        const addonPath = path.dirname(`${__dirname}`);
         afterEach(co.wrap(function* () {
             yield output.dispose();
         }));
 
         it('rolls up a single module', co.wrap(function* () {
             let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }];
-            let node = rollupTree.rollup(dependencies, addonPath);
+            let node = rollupTree.rollup(dependencies, undefined, addonPath);
             output = createBuilder(node);
             yield output.build();
             expect(output.changes()).to.deep.equal({
                 "spaniel.js": "create"
             });
+            this.timeout(7000);
         }));
 
         it('rolls up multiple modules', co.wrap(function* () {
             let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }, { fileName: 'require-relative.js', moduleName: 'require-relative'}];
-            let node = rollupTree.rollup(dependencies, addonPath);
+            let node = rollupTree.rollup(dependencies, undefined, addonPath);
             output = createBuilder(node);
             yield output.build();
             expect(output.changes()).to.deep.equal({
@@ -68,6 +69,7 @@ describe('rollup-tree', function() {
                 "require-relative.js": "create",
                 "spaniel.js": "create"
             });
+            this.timeout(9000);
         }));
     });
 });
