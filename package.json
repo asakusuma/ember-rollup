@@ -33,7 +33,6 @@
     "broccoli-test-helper": "^1.2.0",
     "chai": "^3.3.0",
     "co": "^4.6.0",
-    "ember-spaniel": "^0.3.3",
     "mocha": "^2.3.3",
     "require-relative": "^0.8.7",
     "rollup-plugin-babel": "^2.6.1"
