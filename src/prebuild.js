@@ -52,7 +52,7 @@ function preBuild(addonPath) {
 function build(tree, prebuiltPath) {
     if(tree) {
         return new builder.Builder(tree).build().then(result => {
-            fs.copySync(result.directory, prebuiltPath);
+            fs.copySync(result.directory, prebuiltPath, { dereference: true });
         });
     }
     return Promise.resolve();
