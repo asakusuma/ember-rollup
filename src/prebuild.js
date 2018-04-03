@@ -2,8 +2,6 @@
 const fs = require('fs-extra');
 const path = require('path');
 const builder = require('broccoli-builder');
-const rollUpTree = require('./rollup-tree');
-const rollUp = require('./index');
 const Addon = require('ember-cli/lib/models/addon');
 const Project = require('ember-cli/lib/models/project');
 const UI = require('console-ui');
@@ -52,7 +50,7 @@ function preBuild(addonPath) {
 function build(tree, prebuiltPath) {
     if(tree) {
         return new builder.Builder(tree).build().then(result => {
-            fs.copySync(result.directory, prebuiltPath);
+            fs.copySync(result.directory, prebuiltPath, { dereference: true });
         });
     }
     return Promise.resolve();

@@ -24,7 +24,9 @@ describe('prebuild', function() {
         let result = prebuildRollUp.preBuild(addonPath);
         return result.then(() => {
             expect(fs.readdirSync(preBuildPath)).to.deep.equal(['addon','vendor']);
-        });
+            let stats = fs.lstatSync(path.join(preBuildPath,'addon'));
+	    expect(stats.isSymbolicLink()).to.be.false;
+	});
         this.timeout(7000);
     });
 
