@@ -18,7 +18,7 @@ npm i --save ember-rollup
 
 Simply wrap the exports of your app/addon `index.js` with the function, and suddenly, ES6/2015 dependencies in your ember app! `ember-rollup` even handles [babel](http://babeljs.io/) for you. Modules are namespaced based on the addon name.
 
-`ember-rollup` looks for a `jsnext:main` in `package.json` of imported modules. If not provided, it will fallback to `main` and assume a normal CommonJS module. If `main` is not provided, it will assume `index.js`.
+`ember-rollup` looks for a `jsnext:main` or `module` in `package.json` of imported modules. If not provided, it will fallback to `main` and assume a normal CommonJS module. If `main` is not provided, it will assume `index.js`.
 
 
 ## Example
@@ -38,6 +38,31 @@ module.exports = emberRollup(runtimeDependencies, {
 //my-addon/app/my-thing.js
 import myModule from 'my-addon/my-module';
 import RSVP from 'my-addon/rsvp';
+```
+
+
+## rollup entry
+
+Some packages don't specify `jsnext:main` or `module` in their `package.json` but in fact provide such stuff, you can do it yourself by using `rollupEntry`.
+
+```JavaScript
+//my-addon/index.js
+var emberRollup = require('ember-rollup');
+var runtimeDependencies = [{
+  name: '@reactivex/rxjs',
+  namespaced: false,
+  rollupEntry: 'dist/esm5_for_rollup/index.js'
+}];
+
+module.exports = emberRollup(runtimeDependencies, {
+  name: 'my-addon',
+  ...
+}
+```
+
+```JavaScript
+//my-addon/app/my-thing.js
+import { Observable } from 'rxjs';
 ```
 
 

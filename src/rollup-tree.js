@@ -20,18 +20,21 @@ function classifyDependencies(modules) {
   for (let i = 0; i < modules.length; i++) {
     let moduleName = modules[i];
     let namespaced = true;
+    let rollupEntry;
     let name;
     if (typeof moduleName === 'string') {
       name = moduleName;
     } else {
       name = moduleName.name;
       namespaced = moduleName.namespaced;
+      rollupEntry = moduleName.rollupEntry;
     }
 
     let result = {
       // for scoped package, we will import '@<scoped>/<package>.js' instead of '<package>.js'
       fileName: (name.startsWith('@') ? name : name.split('/').pop()) + '.js',
       moduleName: name,
+      rollupEntry: rollupEntry
     };
 
     if (namespaced) {
