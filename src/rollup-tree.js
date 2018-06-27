@@ -29,7 +29,8 @@ function classifyDependencies(modules) {
     }
 
     let result = {
-      fileName: name.split('/').pop() + '.js',
+      // for scoped package, we will import '@<scoped>/<package>.js' instead of '<package>.js'
+      fileName: (name.startsWith('@') ? name : name.split('/').pop()) + '.js',
       moduleName: name,
     };
 
@@ -74,7 +75,8 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     let esNext = true;
     let packagePath = resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot });
     let pkg = relative(packagePath);
-    let main = pkg['jsnext:main'];
+    // If rollupEntry is explicitly specified, treat as es module
+    let main = dep.rollupEntry || pkg['jsnext:main'] || pkg['module'];
     if (!main) {
       main = pkg.main || 'index.js';
       esNext = false;
@@ -113,7 +115,6 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
       }
     });
 
-    let moduleDir = path.dirname(dep.moduleName);
     let target;
 
     if (esNext) {
@@ -139,6 +140,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
         return [es5Prefix, content, es5Postfix].join('');
       });
       target = new Funnel(wrapped, {
+        include: ['**/*.js'],
         getDestinationPath: function(relativePath) {
           if (relativePath === main) {
             return dep.fileName;
@@ -148,7 +150,9 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
       });
     }
 
-    if (moduleDir === '.') {
+    let moduleDir = path.dirname(dep.moduleName);
+
+    if (moduleDir === '.' || moduleDir.startsWith('@')) {
       return target;
     } else {
       return new Funnel(target, {

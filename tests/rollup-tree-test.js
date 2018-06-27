@@ -21,7 +21,7 @@ describe('rollup-tree', function() {
       expect(dependencies.namespacedDependencies).to.deep.equal([{ fileName: 'broccoli-stew.js', moduleName: 'broccoli-stew' } ]);
       expect(dependencies.nonNamespacedDependencies).to.deep.equal([]);
     });
-    
+
     it('by default classifies dependency array of object to nonNamespacedDependencies ', function() {
       let dependencies = rollupTree.classifyDependencies([{name: 'broccoli-stew' }]);
       expect(dependencies.namespacedDependencies).to.deep.equal([]);
@@ -39,39 +39,6 @@ describe('rollup-tree', function() {
       expect(dependencies.namespacedDependencies).to.deep.equal([]);
       expect(dependencies.nonNamespacedDependencies).to.deep.equal([]);
     });
-  });
-
-  describe('rollup', function() {
-    let output;
-    const addonPath = path.dirname(`${__dirname}`);
-    afterEach(co.wrap(function* () {
-      yield output.dispose();
-    }));
-
-    it('rolls up a single module', co.wrap(function* () {
-      let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }];
-      let node = rollupTree.rollup(dependencies, undefined, addonPath);
-      output = createBuilder(node);
-      yield output.build();
-      expect(output.changes()).to.deep.equal({
-        "spaniel.js": "create"
-      });
-      this.timeout(10000);
-    }));
-
-    it('rolls up multiple modules', co.wrap(function* () {
-      let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }, { fileName: 'require-relative.js', moduleName: 'require-relative'}];
-      let node = rollupTree.rollup(dependencies, undefined, addonPath);
-      output = createBuilder(node);
-      yield output.build();
-      expect(output.changes()).to.deep.equal({
-        "README.md": "create",
-        "package.json": "create",
-        "require-relative.js": "create",
-        "spaniel.js": "create"
-      });
-      this.timeout(10000);
-    }));
   });
 
   describe('rollupAllTheThings', function() {
@@ -137,4 +104,47 @@ describe('rollup-tree', function() {
       this.timeout(10000);
     }));
   });
+    describe('rollup', function() {
+        let output;
+        const addonPath = path.dirname(`${__dirname}`);
+        afterEach(co.wrap(function* () {
+            this.timeout(10000);
+            yield output.dispose();
+        }));
+
+        it('rolls up a single module', co.wrap(function* () {
+            this.timeout(7000);
+            let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }];
+            let node = rollupTree.rollup(dependencies, undefined, addonPath);
+            output = createBuilder(node);
+            yield output.build();
+            expect(output.changes()).to.deep.equal({
+                "spaniel.js": "create"
+            });
+        }));
+
+        it('rolls up multiple modules', co.wrap(function* () {
+            this.timeout(9000);
+            let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }, { fileName: 'require-relative.js', moduleName: 'require-relative'}];
+            let node = rollupTree.rollup(dependencies, undefined, addonPath);
+            output = createBuilder(node);
+            yield output.build();
+            expect(output.changes()).to.deep.equal({
+                "require-relative.js": "create",
+                "spaniel.js": "create"
+            });
+        }));
+
+        it('rolls up a scoped module', co.wrap(function* () {
+            this.timeout(20000);
+            let dependencies = [{ fileName: '@reactivex/rxjs.js', moduleName: '@reactivex/rxjs', rollupEntry: 'dist/esm5_for_rollup/index.js' }];
+            let node = rollupTree.rollup(dependencies, undefined, addonPath);
+            output = createBuilder(node);
+            yield output.build();
+            expect(output.changes()).to.deep.equal({
+                "@reactivex/": "mkdir",
+                "@reactivex/rxjs.js": "create"
+            });
+        }));
+    });
 });
