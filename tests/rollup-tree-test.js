@@ -58,6 +58,20 @@ describe('rollup-tree', function() {
             this.timeout(7000);
         }));
 
+        it('rolls up a single module, using "module" package.json value', co.wrap(function* () {
+            let dependencies = [{
+                fileName: 'rsvp.js',
+                moduleName: 'rsvp'
+            }];
+            let node = rollupTree.rollup(dependencies, undefined, addonPath);
+            output = createBuilder(node);
+            yield output.build();
+            expect(output.changes()).to.deep.equal({
+                "rsvp.js": "create"
+            });
+            this.timeout(7000);
+        }));
+
         it('rolls up multiple modules', co.wrap(function* () {
             let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }, { fileName: 'require-relative.js', moduleName: 'require-relative'}];
             let node = rollupTree.rollup(dependencies, undefined, addonPath);
