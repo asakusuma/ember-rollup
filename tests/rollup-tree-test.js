@@ -55,7 +55,7 @@ describe('rollup-tree', function() {
             expect(output.changes()).to.deep.equal({
                 "spaniel.js": "create"
             });
-            this.timeout(7000);
+            this.timeout(10000);
         }));
 
         it('rolls up multiple modules', co.wrap(function* () {
@@ -69,7 +69,7 @@ describe('rollup-tree', function() {
                 "require-relative.js": "create",
                 "spaniel.js": "create"
             });
-            this.timeout(9000);
+            this.timeout(10000);
         }));
     });
 });
