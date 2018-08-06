@@ -11,6 +11,8 @@ const FIXTURE_INPUT = `${__dirname}/fixtures/dir`;
 const rollupModule = `${__dirname}/fixtures/dummy-addon/rollup-module`;
 const addonPath = `${__dirname}/fixtures/dummy-addon`;
 
+const isWindows = process.platform === 'win32';
+
 describe('prebuild', function() {
     afterEach(function() {
         fs.removeSync(preBuildPath);
@@ -32,9 +34,12 @@ describe('prebuild', function() {
 
     it('throws an error when the dependency is not in node modules', function() {
         fs.writeFileSync(rollupModule, 'ember-data', "utf8");
+        let errorText = isWindows 
+            ? /Cannot find module \'ember-data\\package\.json\'/
+            : /Cannot find module \'ember-data\/package\.json\'/
         expect(function() {
             prebuildRollUp.preBuild(addonPath)
-        }).to.throw(/Cannot find module \'ember-data\/package\.json\'/);
+        }).to.throw(errorText);
     });
 
 });

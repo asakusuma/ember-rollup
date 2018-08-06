@@ -74,7 +74,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     let esNext = true;
     let packagePath = resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot });
     let pkg = relative(packagePath);
-    let main = pkg['jsnext:main'];
+    let main = pkg['jsnext:main'] || pkg['module'];
     if (!main) {
       main = pkg.main || 'index.js';
       esNext = false;
