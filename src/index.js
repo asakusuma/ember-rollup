@@ -37,9 +37,10 @@ module.exports = function(modules, indexObj) {
       return rollupIntoTree.call(this, root, dependencies.namespacedDependencies, this._super.treeForAddon);
     }
     if (indexObj.treeForAddon) {
+      const originalTreeForAddon = indexObj.treeForAddon;
       indexObj.treeForAddon = function() {
         return merge([
-          indexObj.treeForAddon.apply(this, arguments),
+          originalTreeForAddon.apply(this, arguments),
           treeForAddon.apply(this, arguments)
         ]);
       }
