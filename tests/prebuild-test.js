@@ -30,6 +30,17 @@ describe('prebuild', function() {
 	    });
     });
 
+    it('build dependency if it is present in node_modules copy', function() {
+        this.timeout(7000);
+        fs.writeFileSync(rollupModule, 'ember-inner-addon', "utf8");
+        let result = prebuildRollUp.preBuild(addonPath);
+        return result.then(() => {
+            expect(fs.readdirSync(preBuildPath)).to.deep.equal(['addon','vendor']);
+            let stats = fs.lstatSync(path.join(preBuildPath,'addon'));
+	        expect(stats.isSymbolicLink()).to.be.false;
+	    });
+    });
+
     it('throws an error when the dependency is not in node modules', function() {
         fs.writeFileSync(rollupModule, 'ember-data', "utf8");
         expect(function() {
