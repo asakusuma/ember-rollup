@@ -27,25 +27,34 @@ module.exports = function(modules, indexObj) {
   let dependencies = classifyDependencies(modules);
 
   if (dependencies.namespacedDependencies.length > 0) {
-    function treeForAddon(root) {
+    function treeForAddon() {
       let preBuiltPath = getPreBuiltPath.call(this, indexObj);
       // Verify if dependency module is prebuilt already, if yes return the prebuilt path
       if(isPreBuilt(indexObj, path.join(preBuiltPath, ADDON))) {
         return path.join(preBuiltPath, ADDON);
       }
       // else rollup
-      return rollupIntoTree.call(this, root, dependencies.namespacedDependencies, this._super.treeForAddon);
+      return rollupIntoTree.call(this, dependencies.namespacedDependencies);
+    }
+    function treeForAddonWithSuper(root) {
+      return this._super.treeForAddon.call(this, merge([root, treeForAddon.apply(this)].filter(Boolean)));
     }
     if (indexObj.treeForAddon) {
       const originalTreeForAddon = indexObj.treeForAddon;
       indexObj.treeForAddon = function() {
+        // Must reference this._super for super to be available inside the treeForAddon functions
+        const __super = this._super;
+
+        // If a treeForAddon has already been implemented, assume it merges the super tree
+        // so we don't need to call super again
         return merge([
           originalTreeForAddon.apply(this, arguments),
           treeForAddon.apply(this, arguments)
         ]);
       }
     } else {
-      indexObj.treeForAddon = treeForAddon;
+      // If no treeForAddon is implemented, we need to merge the super tree
+      indexObj.treeForAddon = treeForAddonWithSuper;
     }
   }
 
@@ -56,18 +65,27 @@ module.exports = function(modules, indexObj) {
         return path.join(preBuiltPath, VENDOR);
       }
       // else rollup
-      return rollupIntoTree.call(this, root, dependencies.nonNamespacedDependencies, this._super.treeForVendor, true);
+      return rollupIntoTree.call(this, root, dependencies.nonNamespacedDependencies, true);
+    }
+    function treeForVendorWithSuper(root) {
+      return this._super.treeForVendor.call(this, merge([root, treeForVendor.apply(this)].filter(Boolean)));
     }
 
     if (indexObj.treeForVendor) {
+      // Must reference this._super for super to be available inside the treeForVendor functions
+      const __super = this._super;
+      const originalTreeForVendor = indexObj.treeForVendor;
       indexObj.treeForVendor = function() {
         return merge([
-          indexObj.treeForVendor.apply(this, arguments),
+          originalTreeForVendor.apply(this, arguments),
+          // If a treeForVendor has already been implemented, assume it merges the super tree
+          // so we don't need to call super again
           treeForVendor.apply(this, arguments)
         ]);
       }
     } else {
-      indexObj.treeForVendor = treeForVendor;
+      // If no treeForVendor is implemented, we need to merge the super tree
+      indexObj.treeForVendor = treeForVendorWithSuper;
     }
 
     function included() {

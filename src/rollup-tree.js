@@ -161,12 +161,9 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
   return runtimeNpmTree;
 }
 
-function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
+function rollupAllTheThings(runtimeDependencies, transpile) {
   if (shouldAddRuntimeDependencies.call(this)) {
-    let runtimeNpmTree = rollup(runtimeDependencies, transpile, this.root);
-    return superFunc.call(this, merge([runtimeNpmTree, root].filter(Boolean)));
-  } else {
-    return superFunc.call(this, root);
+    return rollup(runtimeDependencies, transpile, this.root);
   }
 }
 
