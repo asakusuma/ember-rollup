@@ -25,7 +25,7 @@
     "babel-preset-es2015": "^6.16.0",
     "broccoli-builder": "^0.18.8",
     "broccoli-funnel": "^1.2.0",
-    "broccoli-merge-trees": "^1.1.4",
+    "broccoli-merge-trees": "^1.2.4",
     "broccoli-rollup": "^1.3.0",
     "broccoli-source": "^1.1.0",
     "broccoli-stew": "^1.4.0",
@@ -38,8 +38,9 @@
     "rollup-plugin-babel": "^2.6.1"
   },
   "devDependencies": {
+    "broccoli-file-creator": "^2.1.1",
     "console-ui": "2.1.0",
-    "ember-cli": "2.15.0",
+    "ember-cli": "^3.3.0",
     "fixturify": "^0.3.0",
     "fs-extra": "5.0.0",
     "resolve": "1.5.0",

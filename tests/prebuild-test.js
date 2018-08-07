@@ -25,6 +25,8 @@ describe('prebuild', function() {
         let result = prebuildRollUp.preBuild(addonPath);
         return result.then(() => {
             expect(fs.readdirSync(preBuildPath)).to.deep.equal(['addon','vendor']);
+            expect(fs.existsSync(`${preBuildPath}/addon/from-tree-for-addon.js`), 'Host addon treeForAddon still works').to.be.ok;
+            expect(fs.existsSync(`${preBuildPath}/vendor/from-tree-for-vendor.js`), 'Host addon treeForVendor still works').to.be.ok;
             let stats = fs.lstatSync(path.join(preBuildPath,'addon'));
 	        expect(stats.isSymbolicLink()).to.be.false;
 	    });
