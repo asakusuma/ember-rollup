@@ -136,14 +136,14 @@ describe('rollup-tree', function() {
         }));
 
         it('rolls up a scoped module', co.wrap(function* () {
-            this.timeout(20000);
-            let dependencies = [{ fileName: '@reactivex/rxjs.js', moduleName: '@reactivex/rxjs', rollupEntry: 'dist/esm5_for_rollup/index.js' }];
+            this.timeout(2000);
+            let dependencies = [{ fileName: '@xg-wang/whatwg-fetch.js', moduleName: '@xg-wang/whatwg-fetch', rollupEntry: './fetch.js' }];
             let node = rollupTree.rollup(dependencies, undefined, addonPath);
             output = createBuilder(node);
             yield output.build();
             expect(output.changes()).to.deep.equal({
-                "@reactivex/": "mkdir",
-                "@reactivex/rxjs.js": "create"
+                "@xg-wang/": "mkdir",
+                "@xg-wang/whatwg-fetch.js": "create"
             });
         }));
     });

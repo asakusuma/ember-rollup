@@ -10,15 +10,14 @@ const Funnel = require('broccoli-funnel');
 const UnwatchedDir = require('broccoli-source').UnwatchedDir;
 const resolve = require('resolve');
 
-let es5Prefix = 'let _outputModule = (function() { let exports = {}; let module = { exports: exports };';
-let es5Postfix = 'return module.exports; })();';
-es5Postfix += 'exports["default"] = _outputModule';
+const es5Prefix = 'let _outputModule = (function() { let exports = {}; let module = { exports: exports };';
+const es5Postfix = 'return module.exports; })(); exports["default"] = _outputModule';
 
 function classifyDependencies(modules) {
-  let namespacedDependencies = [];
-  let nonNamespacedDependencies = [];
+  const namespacedDependencies = [];
+  const nonNamespacedDependencies = [];
   for (let i = 0; i < modules.length; i++) {
-    let moduleName = modules[i];
+    const moduleName = modules[i];
     let namespaced = true;
     let rollupEntry;
     let name;
@@ -30,7 +29,7 @@ function classifyDependencies(modules) {
       rollupEntry = moduleName.rollupEntry;
     }
 
-    let result = {
+    const result = {
       // for scoped package, we will import '@<scoped>/<package>.js' instead of '<package>.js'
       fileName: (name.startsWith('@') ? name : name.split('/').pop()) + '.js',
       moduleName: name,
@@ -62,7 +61,7 @@ function shouldAddRuntimeDependencies() {
 
   let isTopLevelAddon = false;
   for (let i = 0; i < this.project.addons.length; i++) {
-    let addon = this.project.addons[i];
+    const addon = this.project.addons[i];
     isTopLevelAddon = isTopLevelAddon || addon.name === this.name;
   }
 
@@ -74,10 +73,10 @@ function shouldAddRuntimeDependencies() {
 
 function rollup(runtimeDependencies, transpile, addonRoot) {
   transpile = !!transpile;
-  let trees = runtimeDependencies.map(function(dep) {
+  const trees = runtimeDependencies.map(function(dep) {
     let esNext = true;
-    let packagePath = resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot });
-    let pkg = relative(packagePath);
+    const packagePath = resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot });
+    const pkg = relative(packagePath);
     // If rollupEntry is explicitly specified, treat as es module
     let main = dep.rollupEntry || pkg['jsnext:main'] || pkg['module'];
     if (!main) {
@@ -85,15 +84,15 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
       esNext = false;
     }
 
-    let babelrcPath = path.dirname(main) + '/.babelrc';
+    const babelrcPath = path.dirname(main) + '/.babelrc';
     // Hacky way of getting the npm dependency folder
-    let depFolder = new UnwatchedDir(path.dirname(packagePath));
-    let depFolderClean = new Funnel(depFolder, {
+    const depFolder = new UnwatchedDir(path.dirname(packagePath));
+    const depFolderClean = new Funnel(depFolder, {
       exclude: ['node_modules', '.git']
     });
 
     // Add the babelrc file
-    let babelRc = new Funnel(new UnwatchedDir(__dirname + '/../'), {
+    const babelRc = new Funnel(new UnwatchedDir(__dirname + '/../'), {
       include: ['rollup.babelrc'],
       getDestinationPath: function(relativePath) {
         if (relativePath === 'rollup.babelrc') {
@@ -110,7 +109,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     }
     // Add an absolute path to the es2015 preset. Needed since host app
     // won't have the preset
-    let mappedBabelRc = replace(babelRc, {
+    const mappedBabelRc = replace(babelRc, {
       files: [ babelrcPath ],
       pattern: {
         match: /es2015/g,
@@ -139,7 +138,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
       });
     } else {
       // If not ES6, bail out
-      let wrapped = stew.map(depFolder, '*.js', function(content) {
+      const wrapped = stew.map(depFolder, '*.js', function(content) {
         return [es5Prefix, content, es5Postfix].join('');
       });
       target = new Funnel(wrapped, {
@@ -153,7 +152,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
       });
     }
 
-    let moduleDir = path.dirname(dep.moduleName);
+    const moduleDir = path.dirname(dep.moduleName);
 
     if (moduleDir === '.' || moduleDir.startsWith('@')) {
       return target;
@@ -164,13 +163,13 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     }
   });
 
-  let runtimeNpmTree = merge(trees.filter(Boolean));
+  const runtimeNpmTree = merge(trees.filter(Boolean));
   return runtimeNpmTree;
 }
 
 function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
   if (shouldAddRuntimeDependencies.call(this)) {
-    let runtimeNpmTree = rollup(runtimeDependencies, transpile, this.root);
+    const runtimeNpmTree = rollup(runtimeDependencies, transpile, this.root);
     return superFunc.call(this, merge([runtimeNpmTree, root].filter(Boolean)));
   } else {
     return superFunc.call(this, root);

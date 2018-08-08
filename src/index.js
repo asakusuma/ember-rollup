@@ -24,11 +24,11 @@ function getPreBuiltPath(indexObj) {
 
 module.exports = function(modules, indexObj) {
   const classifyDependencies = require('./rollup-tree').classifyDependencies;
-  let dependencies = classifyDependencies(modules);
+  const dependencies = classifyDependencies(modules);
 
   if (dependencies.namespacedDependencies.length > 0) {
     function treeForAddon(root) {
-      let preBuiltPath = getPreBuiltPath.call(this, indexObj);
+      const preBuiltPath = getPreBuiltPath.call(this, indexObj);
       // Verify if dependency module is prebuilt already, if yes return the prebuilt path
       if(isPreBuilt(indexObj, path.join(preBuiltPath, ADDON))) {
         return path.join(preBuiltPath, ADDON);
@@ -56,7 +56,7 @@ module.exports = function(modules, indexObj) {
 
   if (dependencies.nonNamespacedDependencies.length > 0) {
     function treeForVendor(root) {
-      let preBuiltPath = getPreBuiltPath.call(this, indexObj);
+      const preBuiltPath = getPreBuiltPath.call(this, indexObj);
       if(isPreBuilt(indexObj, path.join(preBuiltPath, VENDOR))) {
         return path.join(preBuiltPath, VENDOR);
       }
@@ -71,7 +71,7 @@ module.exports = function(modules, indexObj) {
       const originalTreeForVendor = indexObj.treeForVendor;
         return merge([
           originalTreeForVendor.apply(this, arguments),
-          
+
           // If a treeForVendor has already been implemented, assume it merges the super tree
           // so we don't need to pass in the original tree a second time, hence no parameters
           treeForVendor.apply(this)
@@ -99,7 +99,7 @@ module.exports = function(modules, indexObj) {
     }
 
     if (indexObj.included) {
-      let old = indexObj.included;
+      const old = indexObj.included;
       indexObj.included = function() {
         // Hack to ensure _super is declared
         let _super = this._super;
