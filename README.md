@@ -25,13 +25,13 @@ Simply wrap the exports of your app/addon `index.js` with the function, and sudd
 
 ```JavaScript
 //my-addon/index.js
-var emberRollup = require('ember-rollup');
-var runtimeDependencies = ['my-module', 'rsvp'];
+const emberRollup = require('ember-rollup');
+const runtimeDependencies = ['my-module', 'rsvp'];
 
 module.exports = emberRollup(runtimeDependencies, {
   name: 'my-addon',
   ...
-}
+});
 ```
 
 ```JavaScript
@@ -48,8 +48,8 @@ a module exists. You can manually point rollup to the module entry point file pa
 
 ```JavaScript
 //my-addon/index.js
-var emberRollup = require('ember-rollup');
-var runtimeDependencies = [{
+const emberRollup = require('ember-rollup');
+const runtimeDependencies = [{
   name: '@reactivex/rxjs',
   namespaced: false,
   rollupEntry: 'dist/esm5_for_rollup/index.js'
@@ -58,7 +58,7 @@ var runtimeDependencies = [{
 module.exports = emberRollup(runtimeDependencies, {
   name: 'my-addon',
   ...
-}
+});
 ```
 
 ```JavaScript
@@ -73,8 +73,8 @@ By default, module names are namespaced based on the addon. The reason being, an
 
 ```JavaScript
 //my-addon/index.js
-var emberRollup = require('ember-rollup');
-var runtimeDependencies = [{
+const emberRollup = require('ember-rollup');
+const runtimeDependencies = [{
   name: 'my-module',
   namespaced: false
 }, 'rsvp'];
@@ -82,7 +82,7 @@ var runtimeDependencies = [{
 module.exports = emberRollup(runtimeDependencies, {
   name: 'my-addon',
   ...
-}
+});
 ```
 
 ```JavaScript
