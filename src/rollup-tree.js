@@ -110,7 +110,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     let preset = path.dirname(relative.resolve('babel-preset-es2015/package.json', __dirname + '/../'));
     // Windows path adjustment
     if (process.platform === 'win32') {
-      preset = preset.replace(/\\/g, "\\\\");
+      preset = preset.replace(/\\/g, '\\\\');
     }
     // Add an absolute path to the es2015 preset. Needed since host app
     // won't have the preset

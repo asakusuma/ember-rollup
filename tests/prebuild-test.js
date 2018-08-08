@@ -21,7 +21,7 @@ describe('prebuild', function() {
 
   it('build dependency if it is present in node_modules', function() {
     this.timeout(7000);
-    fs.writeFileSync(rollupModule, 'ember-inner-addon', "utf8");
+    fs.writeFileSync(rollupModule, 'ember-inner-addon', 'utf8');
     const result = prebuildRollUp.preBuild(addonPath);
     return result.then(() => {
       expect(fs.readdirSync(preBuildPath)).to.deep.equal(['addon','vendor']);
@@ -33,7 +33,7 @@ describe('prebuild', function() {
   });
 
   it('throws an error when the dependency is not in node modules', function() {
-    fs.writeFileSync(rollupModule, 'ember-data', "utf8");
+    fs.writeFileSync(rollupModule, 'ember-data', 'utf8');
     expect(function() {
       prebuildRollUp.preBuild(addonPath)
     }).to.throw(/Cannot find module \'ember-data\/package\.json\'/);
@@ -65,13 +65,13 @@ describe('build', function() {
     const tree = new Funnel(FIXTURE_INPUT + '/dir1', {
       include: ['**/*.js']
     });
-    const preBuildPath = path.join(FIXTURE_INPUT, "pre-built")
+    const preBuildPath = path.join(FIXTURE_INPUT, 'pre-built')
     expect(function() {
       fs.readdirSync(preBuildPath);
     }).to.throw(/ENOENT.*pre-built/);
 
     return prebuildRollUp.build(tree, preBuildPath).then(() => {
-      expect(fs.readdirSync(preBuildPath)).to.deep.equal(["subdir1"]);
+      expect(fs.readdirSync(preBuildPath)).to.deep.equal(['subdir1']);
     });
   });
 

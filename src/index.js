@@ -3,8 +3,8 @@ const merge = require('broccoli-merge-trees');
 const rollupIntoTree = require('./rollup-tree').rollupAllTheThings;
 const path = require('path');
 const fs = require('fs-extra');
-const ADDON = "addon";
-const VENDOR = "vendor";
+const ADDON = 'addon';
+const VENDOR = 'vendor';
 
 // Verify if dependency module is prebuilt already
 function isPreBuilt(indexObj, preBuiltPath) {
