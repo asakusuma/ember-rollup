@@ -123,6 +123,17 @@ describe('rollup-tree', function() {
             });
         }));
 
+        it('rolls up a single module with rollupEntry', co.wrap(function* () {
+            this.timeout(7000);
+            let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel', rollupEntry: 'exports/spaniel.js' }];
+            let node = rollupTree.rollup(dependencies, undefined, addonPath);
+            output = createBuilder(node);
+            yield output.build();
+            expect(output.changes()).to.deep.equal({
+                "spaniel.js": "create"
+            });
+        }));
+
         it('rolls up multiple modules', co.wrap(function* () {
             this.timeout(9000);
             let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }, { fileName: 'require-relative.js', moduleName: 'require-relative'}];
@@ -136,6 +147,18 @@ describe('rollup-tree', function() {
         }));
 
         it('rolls up a scoped module', co.wrap(function* () {
+            this.timeout(2000);
+            let dependencies = [{ fileName: '@xg-wang/whatwg-fetch.js', moduleName: '@xg-wang/whatwg-fetch' }];
+            let node = rollupTree.rollup(dependencies, undefined, addonPath);
+            output = createBuilder(node);
+            yield output.build();
+            expect(output.changes()).to.deep.equal({
+                "@xg-wang/": "mkdir",
+                "@xg-wang/whatwg-fetch.js": "create"
+            });
+        }));
+
+        it('rolls up a scoped module with rollupEntry', co.wrap(function* () {
             this.timeout(2000);
             let dependencies = [{ fileName: '@xg-wang/whatwg-fetch.js', moduleName: '@xg-wang/whatwg-fetch', rollupEntry: './fetch.js' }];
             let node = rollupTree.rollup(dependencies, undefined, addonPath);
