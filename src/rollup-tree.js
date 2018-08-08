@@ -166,7 +166,7 @@ function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
     let runtimeNpmTree = rollup(runtimeDependencies, transpile, this.root);
     return superFunc.call(this, merge([runtimeNpmTree, root].filter(Boolean)));
   } else {
-    return superFunc.call(this, [root].filter(Boolean));
+    return superFunc.call(this, root);
   }
 }
 
