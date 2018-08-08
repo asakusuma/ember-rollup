@@ -170,4 +170,22 @@ describe('rollup-tree', function() {
             });
         }));
     });
+
+    describe('_findEntry', function() {
+        it('esNext set to false if module entry not found', function() {
+            const pkg = {
+                main: 'index.js'
+            };
+            const found = rollupTree._findEntry(pkg);
+            expect(found).to.deep.equal({main: 'index.js', esNext: false});
+        });
+
+        it('prioritize rollupEntry if passed in', function() {
+            const pkg = {
+                main: 'index.js'
+            };
+            const found = rollupTree._findEntry(pkg, 'rollupEntry.js');
+            expect(found).to.deep.equal({main: 'rollupEntry.js', esNext: true});
+        })
+    })
 });

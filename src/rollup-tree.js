@@ -71,18 +71,23 @@ function shouldAddRuntimeDependencies() {
   return !isTopLevelAddon || !this.parent.parent;
 }
 
+function _findEntry(pkg, rollupEntry) {
+  let esNext = true;
+  let main = rollupEntry || pkg['jsnext:main'] || pkg['module'];
+  if (!main) {
+    main = pkg.main || 'index.js';
+    esNext = false;
+  }
+  return { main, esNext };
+}
+
 function rollup(runtimeDependencies, transpile, addonRoot) {
   transpile = !!transpile;
   const trees = runtimeDependencies.map(function(dep) {
-    let esNext = true;
     const packagePath = resolve.sync(path.join(dep.moduleName , 'package.json'), { basedir: addonRoot });
     const pkg = relative(packagePath);
     // If rollupEntry is explicitly specified, treat as es module
-    let main = dep.rollupEntry || pkg['jsnext:main'] || pkg['module'];
-    if (!main) {
-      main = pkg.main || 'index.js';
-      esNext = false;
-    }
+    const { main, esNext } = _findEntry(pkg, dep.rollupEntry);
 
     const babelrcPath = path.dirname(main) + '/.babelrc';
     // Hacky way of getting the npm dependency folder
@@ -177,5 +182,5 @@ function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
 }
 
 
-module.exports = { rollup, classifyDependencies, rollupAllTheThings}
+module.exports = { rollup, classifyDependencies, rollupAllTheThings, _findEntry }
 
