@@ -1,5 +1,13 @@
 # ember-rollup Changelog
 
+### 2.0.0 (August 8, 2018)
+
+  - Drop node v4 and v9 in CI.
+  - Support scoped package.
+  - Option 'rollupEntry' to explicitly specify module entry for rollup.
+  - Support both jsnext:main and module in package.json sections.
+  - Switch to yarn and Align tested node versions with ember-cli's supported node versions.
+
 ### 1.1.0 (August 7, 2018)
 
   - Play nice with existing `treeForAddon` and `treeForVendor` hook usage.
