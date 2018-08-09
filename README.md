@@ -43,8 +43,8 @@ import RSVP from 'my-addon/rsvp';
 
 ## Custom Rollup Entry
 
-Some packages don't specify `jsnext:main` or `module` in their `package.json` but even though
-a module exists. You can manually point rollup to the module entry point file path using rollupEntry.
+Some packages don't specify `jsnext:main` or `module` in their `package.json` even though
+a module exists. You can manually point rollup to the module entry point file path using `rollupEntry`.
 
 ```JavaScript
 //my-addon/index.js
