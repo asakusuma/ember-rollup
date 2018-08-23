@@ -1,6 +1,6 @@
 'use strict';
 const broccoliRollUp = require('broccoli-rollup');
-const merge = require('broccoli-merge-trees');
+const Merge = require('broccoli-merge-trees');
 const babel = require('rollup-plugin-babel');
 const stew = require('broccoli-stew');
 const path = require('path');
@@ -125,10 +125,10 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     let target;
 
     if (esNext) {
-      target = new broccoliRollUp(merge([
+      target = new broccoliRollUp(new Merge([
         depFolderClean,
         mappedBabelRc
-      ]), {
+      ], { annotation: '[ember-rollup] Merge in BabelRC file' }), {
         rollup: {
           entry: main,
           targets: [{
@@ -168,14 +168,15 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     }
   });
 
-  const runtimeNpmTree = merge(trees.filter(Boolean));
+  const runtimeNpmTree = new Merge(trees.filter(Boolean), { annotation: '[ember-rollup] Merge runtime module trees' });
   return runtimeNpmTree;
 }
 
-function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile) {
+function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile, superAnnotation) {
   if (shouldAddRuntimeDependencies.call(this)) {
+    const annotation = `[ember-rollup] Merge runtime dependency tree and ${superAnnotation || ' unknown treeFor hook'}`;
     const runtimeNpmTree = rollup(runtimeDependencies, transpile, this.root);
-    return superFunc.call(this, merge([runtimeNpmTree, root].filter(Boolean)));
+    return superFunc.call(this, new Merge([runtimeNpmTree, root].filter(Boolean), { annotation }));
   } else {
     return superFunc.call(this, root);
   }

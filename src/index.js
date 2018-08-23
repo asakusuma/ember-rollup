@@ -1,5 +1,5 @@
 'use strict';
-const merge = require('broccoli-merge-trees');
+const Merge = require('broccoli-merge-trees');
 const rollupIntoTree = require('./rollup-tree').rollupAllTheThings;
 const path = require('path');
 const fs = require('fs-extra');
@@ -34,20 +34,20 @@ module.exports = function(modules, indexObj) {
         return path.join(preBuiltPath, ADDON);
       }
       // else rollup
-      return rollupIntoTree.call(this, root, dependencies.namespacedDependencies, this._super.treeForAddon);
+      return rollupIntoTree.call(this, root, dependencies.namespacedDependencies, this._super.treeForAddon, false, 'treeForAddon');
     }
     if (indexObj.treeForAddon) {
       const originalTreeForAddon = indexObj.treeForAddon;
       indexObj.treeForAddon = function() {
         // Must reference this._super for super to be available inside the treeForAddon functions
         const __super = this._super;
-        return merge([
+        return new Merge([
           originalTreeForAddon.apply(this, arguments),
 
           // If a treeForAddon has already been implemented, assume it merges the super tree
           // so we don't need to pass in the original tree a second time, hence no parameters
           treeForAddon.apply(this)
-        ]);
+        ], { annotation: `[ember-rollup] Merge ember-rollup's treeForAddon and original addon's treeForAddon` });
       }
     } else {
       indexObj.treeForAddon = treeForAddon;
@@ -61,7 +61,7 @@ module.exports = function(modules, indexObj) {
         return path.join(preBuiltPath, VENDOR);
       }
       // else rollup
-      return rollupIntoTree.call(this, root, dependencies.nonNamespacedDependencies, this._super.treeForVendor, true);
+      return rollupIntoTree.call(this, root, dependencies.nonNamespacedDependencies, this._super.treeForVendor, true, 'treeForVendor');
     }
 
     if (indexObj.treeForVendor) {
@@ -69,13 +69,13 @@ module.exports = function(modules, indexObj) {
         // Must reference this._super for super to be available inside the treeForVendor functions
       const __super = this._super;
       const originalTreeForVendor = indexObj.treeForVendor;
-        return merge([
+        return new Merge([
           originalTreeForVendor.apply(this, arguments),
 
           // If a treeForVendor has already been implemented, assume it merges the super tree
           // so we don't need to pass in the original tree a second time, hence no parameters
           treeForVendor.apply(this)
-        ]);
+        ], { annotation: `[ember-rollup] Merge ember-rollup's treeForAddon and original addon's treeForAddon` });
       }
     } else {
       indexObj.treeForVendor = treeForVendor;
