@@ -75,7 +75,7 @@ module.exports = function(modules, indexObj) {
           // If a treeForVendor has already been implemented, assume it merges the super tree
           // so we don't need to pass in the original tree a second time, hence no parameters
           treeForVendor.apply(this)
-        ], { annotation: `[ember-rollup] Merge ember-rollup's treeForAddon and original addon's treeForAddon` });
+        ], { annotation: `[ember-rollup] Merge ember-rollup's treeForVendor and original addon's treeForVendor` });
       }
     } else {
       indexObj.treeForVendor = treeForVendor;
