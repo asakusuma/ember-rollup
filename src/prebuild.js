@@ -1,6 +1,5 @@
 'use strict';
 const fs = require('fs-extra');
-const path = require('path');
 const builder = require('broccoli-builder');
 const Addon = require('ember-cli/lib/models/addon');
 const Project = require('ember-cli/lib/models/project');
@@ -44,7 +43,7 @@ function preBuild(addonPath) {
   });
 
   // Merge, Build the resulting tree and store it in prebuild path
-  return build(Merge([addonTree, vendorTree]), addonToBuild.PREBUILT_PATH);
+  return build(new Merge([addonTree, vendorTree], { annotation: '[ember-rollup] Merging prebuild addon and vendor tree' }), addonToBuild.PREBUILT_PATH);
  }
 
 function build(tree, prebuiltPath) {
