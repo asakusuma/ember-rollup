@@ -99,8 +99,8 @@ describe('rollup-tree', function() {
       let node = rollupTree.rollupAllTheThings.call(addon, root.path(), dependencies, superFunc);
       output = createBuilder(node);
       yield output.build();
-      expect(output.changes()).to.deep.equal({
-        'myRootFile.js': 'create'
+      expect(output.read()).to.deep.equal({
+        'myRootFile.js': '// myRootFile.js'
       });
     }));
   });

@@ -107,7 +107,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
       }
     });
 
-    let preset = path.dirname(relative.resolve('babel-preset-es2015/package.json', __dirname + '/../'));
+    let preset = path.dirname(relative.resolve('@babel/preset-env/package.json', __dirname + '/../'));
     // Windows path adjustment
     if (process.platform === 'win32') {
       preset = preset.replace(/\\/g, '\\\\');
