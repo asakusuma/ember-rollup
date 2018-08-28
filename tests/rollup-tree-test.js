@@ -123,6 +123,18 @@ describe('rollup-tree', function() {
       });
     }));
 
+    it('rolls up a single module when transpiling to AMD', co.wrap(function* () {
+      this.timeout(7000);
+      let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }];
+      let node = rollupTree.rollup(dependencies, true, addonPath);
+      output = createBuilder(node);
+      yield output.build();
+      expect(output.changes()).to.deep.equal({
+        'spaniel.js': 'create'
+      });
+      expect(output.read()['spaniel.js'].match(/define\(('|")spaniel('|")/), 'Define statement with spaniel exists').to.be.ok;
+    }));
+
     it('rolls up a single module with rollupEntry', co.wrap(function* () {
       this.timeout(7000);
       let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel', rollupEntry: 'exports/spaniel.js' }];
