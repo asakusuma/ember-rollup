@@ -1,5 +1,10 @@
 # ember-rollup Changelog
 
+### 2.1.0 (August 27, 2018)
+
+  - Use `@babel/present-env` instead of `babel-preset-es2015`
+  - Upgrade `rollup`
+
 ### 2.0.0 (August 8, 2018)
 
   - Drop support for node v4 and v9 to align with node LTS
