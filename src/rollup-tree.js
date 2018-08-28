@@ -125,17 +125,19 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     let target;
 
     if (esNext) {
+      const amd = transpile ? { id: dep.moduleName } : null;
       target = new broccoliRollUp(new Merge([
         depFolderClean,
         mappedBabelRc
       ], { annotation: '[ember-rollup] Merge in BabelRC file' }), {
         rollup: {
-          entry: main,
-          targets: [{
-            dest: dep.fileName,
+          input: main,
+          output: {
+            file: dep.fileName,
             format: transpile ? 'amd' : 'es',
-            moduleId: dep.moduleName
-          }],
+            name: dep.moduleName,
+            amd
+          },
           plugins: [
             babel()
           ]
