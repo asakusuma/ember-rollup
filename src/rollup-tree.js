@@ -1,14 +1,15 @@
 'use strict';
 const broccoliRollUp = require('broccoli-rollup');
 const Merge = require('broccoli-merge-trees');
-const babel = require('rollup-plugin-babel');
 const stew = require('broccoli-stew');
 const path = require('path');
-const replace = require('broccoli-string-replace');
 const relative = require('require-relative');
 const Funnel = require('broccoli-funnel');
 const UnwatchedDir = require('broccoli-source').UnwatchedDir;
 const resolve = require('resolve');
+const BroccoliDebug = require('broccoli-debug');
+
+const debug = BroccoliDebug.buildDebugCallback('ember-rollup');
 
 const es5Prefix = 'let _outputModule = (function() { let exports = {}; let module = { exports: exports };';
 const es5Postfix = 'return module.exports; })(); exports["default"] = _outputModule';
@@ -89,46 +90,18 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
     // If rollupEntry is explicitly specified, treat as es module
     const { main, esNext } = _findEntry(pkg, dep.rollupEntry);
 
-    const babelrcPath = path.dirname(main) + '/.babelrc';
     // Hacky way of getting the npm dependency folder
     const depFolder = new UnwatchedDir(path.dirname(packagePath));
     const depFolderClean = new Funnel(depFolder, {
       exclude: ['node_modules', '.git']
     });
 
-    // Add the babelrc file
-    const babelRc = new Funnel(new UnwatchedDir(__dirname + '/../'), {
-      include: ['rollup.babelrc'],
-      getDestinationPath: function(relativePath) {
-        if (relativePath === 'rollup.babelrc') {
-          return babelrcPath;
-        }
-        return relativePath;
-      }
-    });
-
-    let preset = path.dirname(relative.resolve('@babel/preset-env/package.json', __dirname + '/../'));
-    // Windows path adjustment
-    if (process.platform === 'win32') {
-      preset = preset.replace(/\\/g, '\\\\');
-    }
-    // Add an absolute path to the es2015 preset. Needed since host app
-    // won't have the preset
-    const mappedBabelRc = replace(babelRc, {
-      files: [ babelrcPath ],
-      pattern: {
-        match: /es2015/g,
-        replacement: preset
-      }
-    });
-
     let target;
 
     if (esNext) {
       const amd = transpile ? { id: dep.moduleName } : null;
-      target = new broccoliRollUp(new Merge([
-        depFolderClean,
-        mappedBabelRc
+      target = debug(new broccoliRollUp(new Merge([
+        depFolderClean
       ], { annotation: '[ember-rollup] Merge in BabelRC file' }), {
         rollup: {
           input: main,
@@ -137,18 +110,15 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
             format: transpile ? 'amd' : 'es',
             name: dep.moduleName,
             amd
-          },
-          plugins: [
-            babel()
-          ]
+          }
         }
-      });
+      }), 'rollup es6');
     } else {
       // If not ES6, bail out
       const wrapped = stew.map(depFolder, '*.js', function(content) {
         return [es5Prefix, content, es5Postfix].join('');
       });
-      target = new Funnel(wrapped, {
+      target = debug(new Funnel(wrapped, {
         include: ['**/*.js'],
         getDestinationPath: function(relativePath) {
           if (relativePath === main) {
@@ -156,7 +126,7 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
           }
           return relativePath;
         }
-      });
+      }), 'Funnel non es6');
     }
 
     const moduleDir = path.dirname(dep.moduleName);
@@ -177,7 +147,18 @@ function rollup(runtimeDependencies, transpile, addonRoot) {
 function rollupAllTheThings(root, runtimeDependencies, superFunc, transpile, superAnnotation) {
   if (shouldAddRuntimeDependencies.call(this)) {
     const annotation = `[ember-rollup] Merge runtime dependency tree and ${superAnnotation || ' unknown treeFor hook'}`;
-    const runtimeNpmTree = rollup(runtimeDependencies, transpile, this.root);
+    let runtimeNpmTree = rollup(runtimeDependencies, transpile, this.root);
+    debugger
+    const babelAddon = this.addons.find(addon => addon.name === 'ember-cli-babel');
+    if (babelAddon) {
+      runtimeNpmTree = debug(babelAddon.transpileTree(runtimeNpmTree, {
+        'ember-cli-babel': {
+          compileModules: false
+        }
+      }), 'babel');
+    } else {
+      this.ui.writeWarnLine('[ember-rollup] Could not find `ember-cli-babel` addon, opting out of transpilation!');
+    }
     return superFunc.call(this, new Merge([runtimeNpmTree, root].filter(Boolean), { annotation }));
   } else {
     return superFunc.call(this, root);

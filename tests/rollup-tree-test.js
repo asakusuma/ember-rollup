@@ -61,6 +61,10 @@ describe('rollup-tree', function() {
           addons: [{
             name: 'my-addon'
           }]
+        },
+        addons: [],
+        ui: {
+          writeWarnLine: () => {}
         }
       };
       let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }];
@@ -73,6 +77,42 @@ describe('rollup-tree', function() {
         'myRootFile.js': 'create',
         'spaniel.js': 'create'
       });
+    }));
+
+    it('invoke ember-cli-babel for babel transpilation', co.wrap(function* () {
+      this.timeout(10000);
+      const root = yield createTempDir();
+      root.write({
+        'myRootFile.js': '// myRootFile.js'
+      });
+      let babelCalled = false;
+      const addon = {
+        root: addonPath,
+        parent: {},
+        project: {
+          addons: [{
+            name: 'my-addon'
+          }]
+        },
+        addons: [{
+          name: 'ember-cli-babel',
+          transpileTree: (tree) => {babelCalled = true; return tree;}
+        }],
+        ui: {
+          writeWarnLine: () => {}
+        }
+      };
+      let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }];
+      const superFunc = (tree) => tree;
+
+      let node = rollupTree.rollupAllTheThings.call(addon, root.path(), dependencies, superFunc);
+      output = createBuilder(node);
+      yield output.build();
+      expect(output.changes()).to.deep.equal({
+        'myRootFile.js': 'create',
+        'spaniel.js': 'create'
+      });
+      expect(babelCalled).to.be.true;
     }));
 
     it('does not include rollup deps and just returns root tree via super when addon is not the top addon', co.wrap(function* () {
@@ -91,6 +131,10 @@ describe('rollup-tree', function() {
           addons: [{
             name: 'my-addon'
           }]
+        },
+        addons: [],
+        ui: {
+          writeWarnLine: () => {}
         }
       };
       let dependencies = [{ fileName: 'spaniel.js', moduleName: 'spaniel' }];
