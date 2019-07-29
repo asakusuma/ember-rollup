@@ -29,6 +29,7 @@ function preBuild(addonPath) {
     ci: true | false
   });
   const project = Project.closestSync(addonPath, ui);
+  project.initializeAddons();
   // Extend the current addon from base Addon
   const CurrentAddon = Addon.extend(Object.assign({}, addonToBuild, {root: addonPath, pkg: project.pkg}));
   const currAddon  = new CurrentAddon(addonPath, project);
