@@ -45,6 +45,7 @@ function preBuild(addonPath) {
 
   // Merge, Build the resulting tree and store it in prebuild path
   return build(new Merge([addonTree, vendorTree], { annotation: '[ember-rollup] Merging prebuild addon and vendor tree' }), addonToBuild.PREBUILT_PATH).finally(() => {
+    console.log('SWAG PAUSED');
     process.stdin.pause();
   });
  }
