@@ -12,6 +12,7 @@ const rollupModule = `${__dirname}/fixtures/dummy-addon/rollup-module`;
 const addonPath = `${__dirname}/fixtures/dummy-addon`;
 
 describe('prebuild', function() {
+  after(require('why-is-node-running'));
   afterEach(function() {
     fs.removeSync(preBuildPath);
     fs.removeSync(path.join(path.dirname(`${__dirname}`), '/tmp'));
@@ -41,6 +42,7 @@ describe('prebuild', function() {
 });
 
 describe('build', function() {
+  after(require('why-is-node-running'));
   beforeEach(function(){
     fs.mkdirpSync(FIXTURE_INPUT);
     fixturify.writeSync(FIXTURE_INPUT, {

@@ -25,6 +25,8 @@
   "dependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/preset-env": "^7.0.0",
+    "@rollup/plugin-babel": "5.2.1",
+    "after": "^0.8.2",
     "broccoli-builder": "^0.18.14",
     "broccoli-funnel": "^3.0.3",
     "broccoli-merge-trees": "^4.2.0",
@@ -38,7 +40,7 @@
     "mocha": "^8.2.1",
     "require-relative": "^0.8.7",
     "rollup": "^2.33.1",
-    "@rollup/plugin-babel": "5.2.1"
+    "why-is-node-running": "^2.2.0"
   },
   "devDependencies": {
     "@xg-wang/whatwg-fetch": "^3.0.0",
