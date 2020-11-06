@@ -8,8 +8,16 @@ const createBuilder = helpers.createBuilder;
 const createTempDir = helpers.createTempDir;
 const co = require('co');
 
+const why = require('why-is-node-running');
+
+setTimeout(() => {
+  why();
+}, 1000 * 60);
+
 describe('rollup-tree', function() {
-  after(require('why-is-node-running'));
+  after(function() {
+    why();
+  });
   describe('classifyDependencies', function() {
     it('classifies nonNamespacedDependencies', function() {
       let dependencies = rollupTree.classifyDependencies([{name: 'broccoli-stew',  namespaced: false }]);
