@@ -19,7 +19,7 @@
     "node": "10.* || 12.* || >= 14.*"
   },
   "scripts": {
-    "test": "mocha tests/",
+    "test": "mocha tests/ --exit",
     "test:debug": "mocha debug tests/"
   },
   "dependencies": {
