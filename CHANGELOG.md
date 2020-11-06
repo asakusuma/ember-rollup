@@ -1,5 +1,9 @@
 # ember-rollup Changelog
 
+### 3.0.0 (November 5, 2020)
+
+- Drop support for EOLed versions of node. See package.json for supported versions.
+
 ### 2.1.0 (August 27, 2018)
 
   - Use `@babel/present-env` instead of `babel-preset-es2015`

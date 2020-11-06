@@ -1,7 +1,7 @@
 'use strict';
 const broccoliRollUp = require('broccoli-rollup');
 const Merge = require('broccoli-merge-trees');
-const babel = require('rollup-plugin-babel');
+const babel = require('@rollup/plugin-babel')['default'];
 const stew = require('broccoli-stew');
 const path = require('path');
 const replace = require('broccoli-string-replace');
